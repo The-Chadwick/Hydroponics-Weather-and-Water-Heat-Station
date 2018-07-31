@@ -16,25 +16,27 @@ class Weather {
 	}
 	
 	public function postWeather($waterTemp, $airTemp, $humidity){
-		// mainly for use via the arduino weaether station
+		// Add Weather data from microcontroller to database
 		$this->waterTemp = $waterTemp; $this->airTemp = $airTemp; $this->humidity = $humidity;
-		$query = 'INSERT INTO `weather` (`dateTime`, `waterTemp`, `airTemp`, `humidity`) VALUES (' . $this->dateTime . ' , ' . $this->waterTemp . ' , ' . $this->airTemp . ' , ' . $this->humidity . ')';
+		$query = 'INSERT INTO `weather` (`id`, `dateTime`, `weaterTemp`, `airTemp`, `humidity`) VALUES (NULL, CURRENT_TIMESTAMP, ' . $this->waterTemp . ', ' . $this->airTemp . ', ' . $this->humidity . ')';
 		$stmt = $this->conn->prepare($query);
 		$stmt->execute();
 		return 'sall goodman';
 	}
 	
 	public function getWeather(){
-		
-		$query = 'SELECT * FROM `weather WHERE `dateTime` ';
+		// If no variables, select the last 28 days worth of data
+		echo date('Y-m-d H:i:s');
+		$query = 'SELECT * FROM `weather` WHERE `dateTime` BETWEEN "2018-07-26 00:00:00.000000" AND "2018-07-26 23:59:59.999999"';
 	}
 }
 
 include_once('../config/Database.php');
 
-$db = new Database();
+$database = new Database();
 $db = $database->connect();
 $weatherTest = new Weather($db);
-$weatherTest->postWeather(65,95,30);
+echo $weatherTest->postWeather(65,95,30) . '<br>';
+echo $weatherTest->getWeather();
 	
 ?>

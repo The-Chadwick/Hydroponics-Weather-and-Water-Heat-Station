@@ -3,9 +3,9 @@
 
 // WiFi SSID and Password (wifiConfig.h stores my wifi SSID and Password)
 #include "wifiConfig.h";
-const char* ssid = MY_SSID;
-const char* password = MY_PASSWORD;
-const char* server = MY_LOCAL_SERVER;
+const char* ssid = MY_SSID; // WiFi Name
+const char* password = MY_PASSWORD; // WiFi Password
+const char* server = MY_LOCAL_SERVER; // URL for the API to POST data
 
 // ESP8266 HTTP Client (for Post and Get Requests)
 #include <ESP8266HTTPClient.h>
@@ -27,6 +27,12 @@ void setup() {
   
 }
 
+// variables for testing: randomly generated variables by time of day.
+int previousDayHigh = 100;
+int previousDayHumidity = 30;
+int randomStorm = 0;
+int hourOfDay = 0;
+
 void loop() {
   if(WiFi.status() == WL_CONNECTED){ // Make sure we are connected to WiFi
     HTTPClient http; // Declare HTTPClient Object
@@ -34,10 +40,26 @@ void loop() {
     http.begin(server);
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
-    int httpCode = http.POST("name=Brandon Walker&quantity=10"); // POST Request
+    // weather variables
+    byte waterTemp, airTemp, humidity;
+
+    // create random weather data for testing
+    waterTemp = 90;
+    airTemp = randomWeather();
+    humidity = 29;
+
+
+    int httpCode = 0;
+    while(httpCode != 200){
+      // keep sending POST data every five seconds until we get a response from the server
+      httpCode = http.POST( // POST Request
+          "waterTemp=" + String(waterTemp)
+          + "&airTemp=" + String(airTemp)
+          + "&humidity=" + String(humidity));
+      delay(5000);
+    }
     String response = http.getString();
 
-    Serial.println(httpCode);
     Serial.println(response);
 
     http.end();
@@ -45,6 +67,29 @@ void loop() {
     Serial.println("WiFi Connection Error");
   }
 
-  delay(3000);
+  delay(100);
 
 }
+
+int randomWeather(){
+  // Generates random weather data to simulate the Month of July in the Salt Lake Region for server testing
+  
+  // Change Daily High
+  if(hourOfDay == 23){
+    // reset after storm
+    if(previousDayHigh < 90){
+      previousDayHigh = 96;
+      previousDayHumidity = 30;
+    }
+  
+    // calculate the random chance of having a storm which reduces air temp and humidity
+    int randomStormCalculation = randomStorm * random(0,2);
+    if(randomStormCalculation > 15){
+      previousDayHigh -= 20;
+      previousDayHumidity += 40;
+    }
+  }
+
+  return 95;
+}
+
