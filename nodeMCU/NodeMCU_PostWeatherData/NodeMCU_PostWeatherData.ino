@@ -28,8 +28,8 @@ void setup() {
 }
 
 // variables for testing: randomly generated variables by time of day.
-int previousDayHigh = 100;
-int previousDayHumidity = 30;
+int dailyHigh = 96;
+int dailyHumidity = 30;
 int randomStorm = 0;
 int hourOfDay = 0;
 
@@ -44,6 +44,7 @@ void loop() {
     byte waterTemp, airTemp, humidity;
 
     // create random weather data for testing
+    int[3] randomData = randomWeather();
     waterTemp = 90;
     airTemp = randomWeather();
     humidity = 29;
@@ -71,25 +72,46 @@ void loop() {
 
 }
 
-int randomWeather(){
-  // Generates random weather data to simulate the Month of July in the Salt Lake Region for server testing
+int[] randomWeather(){
+  // Generates random weather data to simulate the Month of July in the Salt Lake Region for web portal testing
   
   // Change Daily High
   if(hourOfDay == 23){
     // reset after storm
-    if(previousDayHigh < 90){
-      previousDayHigh = 96;
-      previousDayHumidity = 30;
+    if(dailyHigh < 85){
+      dailyHigh = 96;
+      dailyHumidity = 30;
     }
   
     // calculate the random chance of having a storm which reduces air temp and humidity
     int randomStormCalculation = randomStorm * random(0,2);
     if(randomStormCalculation > 15){
-      previousDayHigh -= 20;
-      previousDayHumidity += 40;
+      // if 'thunder storm' happens, lower the temperature accordingly
+      dailyHigh -= 20;
+      dailyHumidity += 40;
+    } else {
+      // if 'thunder storm' does not happen, randomly choose a temperature close to previous day temp
+      if(dailyHigh >= 100){
+        // scew temperature towards cooler temps if previous day is abnormally hot
+        dailyHigh += random(-3,1);
+      } else if(dailyHigh <= 90){
+        // scew temperature towards cooler temps if previous day is abnormally cool
+        dailyHigh += random(-1,5);
+      } else{
+        // randomly raise or lower temperature within a probable range
+        dailyHigh += random(-3,3);
+      }
     }
   }
 
-  return 95;
+  // hourly scew changes the simulated hourly temperature compared to the daily high
+  int[24] airHourlyTempScew = {};
+  int[24] waterHourlyTempScew = {};
+
+  int airTemp = dailyHigh * airHourlyTempScew[hourOfDay] + random(-1,1);
+//  int waterTemp = dailyHigh
+  int humidity = dailyHumidity + random(-1,1)
+
+  return int[3] = {airTemp, waterTemp, humidity};
 }
 
