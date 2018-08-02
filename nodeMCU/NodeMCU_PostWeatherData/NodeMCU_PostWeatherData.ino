@@ -32,6 +32,7 @@ int dailyHigh = 96;
 int dailyHumidity = 30;
 int randomStorm = 0;
 int hourOfDay = 0;
+int randomWeatherData[3] = {68,88,30};
 
 void loop() {
   if(WiFi.status() == WL_CONNECTED){ // Make sure we are connected to WiFi
@@ -44,10 +45,10 @@ void loop() {
     byte waterTemp, airTemp, humidity;
 
     // create random weather data for testing
-    int[3] randomData = randomWeather();
-    waterTemp = 90;
-    airTemp = randomWeather();
-    humidity = 29;
+    randomWeather();
+    waterTemp = randomWeatherData[0];
+    airTemp = randomWeatherData[1];
+    humidity = randomWeatherData[2];
 
 
     int httpCode = 0;
@@ -56,7 +57,8 @@ void loop() {
       httpCode = http.POST( // POST Request
           "waterTemp=" + String(waterTemp)
           + "&airTemp=" + String(airTemp)
-          + "&humidity=" + String(humidity));
+          + "&humidity=" + String(humidity)
+          + "&address=" + String(WiFi.macAddress()));
       delay(5000);
     }
     String response = http.getString();
@@ -68,15 +70,17 @@ void loop() {
     Serial.println("WiFi Connection Error");
   }
 
-  delay(100);
+//  delay(100);
 
 }
 
-int[] randomWeather(){
+void randomWeather(){
   // Generates random weather data to simulate the Month of July in the Salt Lake Region for web portal testing
   
   // Change Daily High
   if(hourOfDay == 23){
+    hourOfDay = 0;
+    
     // reset after storm
     if(dailyHigh < 85){
       dailyHigh = 96;
@@ -96,7 +100,7 @@ int[] randomWeather(){
         dailyHigh += random(-3,1);
       } else if(dailyHigh <= 90){
         // scew temperature towards cooler temps if previous day is abnormally cool
-        dailyHigh += random(-1,5);
+        dailyHigh += random(-1,6);
       } else{
         // randomly raise or lower temperature within a probable range
         dailyHigh += random(-3,3);
@@ -104,14 +108,22 @@ int[] randomWeather(){
     }
   }
 
+  // Assume user has addressed the water heat issue and reset the temperature
+  if(randomWeatherData[0] > 85){
+    randomWeatherData[0] -= 15;
+  }
+
   // hourly scew changes the simulated hourly temperature compared to the daily high
-  int[24] airHourlyTempScew = {};
-  int[24] waterHourlyTempScew = {};
+  double hourlyTempScew[24] = {0.82,0.78,0.74,0.69,0.68,0.68,0.68,0.69,0.71,0.74,0.78,0.82,0.88,0.94,0.96,0.97,0.98,0.99,1,0.99,0.97,0.95,0.92,0.88};
 
-  int airTemp = dailyHigh * airHourlyTempScew[hourOfDay] + random(-1,1);
-//  int waterTemp = dailyHigh
-  int humidity = dailyHumidity + random(-1,1)
+  randomWeatherData[1] = dailyHigh * hourlyTempScew[hourOfDay] + random(-1,1);
+  if(randomWeatherData[1] > 90){
+    randomWeatherData[0] += random(0,3);
+  } else if(randomWeatherData[0] < 64){
+    randomWeatherData[0] += random(-3,0);
+  }
+  randomWeatherData[2] = dailyHumidity + random(-1,1);
 
-  return int[3] = {airTemp, waterTemp, humidity};
+  hourOfDay++;
 }
 
