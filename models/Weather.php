@@ -26,26 +26,31 @@ class Weather {
 	}
 	
 	public function getWeather(...$args){
-		if(isset($args[0])){
-			echo "there is at least one argument";
+		$start; $end;
+		if(isset($args[1]) && isset($args[0])){
+			// getWeather($start, $end);
+			echo 'Fetching data from ' . $args[0] . ' to ' . $args[1] . '.';
+			$query = 'SELECT * FROM `weather` WHERE `dateTime` BETWEEN "2018-07-26 00:00:00.000000" AND "2018-08-1 23:59:59.999999"';
+		} else if(isset($args[0]) && !isset($args[1])){
+			// getWeather($start);
+			echo 'Fetching data from ' . $args[0] . ' onwards.';
 		} else{
-			echo "there are no arguments";
+			// getWeather();
+			$query = 'SELECT * FROM `weather`';
 		}
-		$query = 'SELECT * FROM `weather` WHERE `dateTime` BETWEEN "2018-07-26 00:00:00.000000" AND "2018-08-1 23:59:59.999999"';
 		$stmt = $this->conn->prepare($query);
 		$stmt->execute();
 		
-		return $stmt;
+		// converts to json for return
+		$data = array();
+		$data['weather'] = array();
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			$data['weather'][] = $row;
+		}
+		
+		return $data;
 	}
 }
 
-include_once('../config/Database.php');
-
-$database = new Database();
-$db = $database->connect();
-$weatherTest = new Weather($db);
-echo $weatherTest->postWeather(65,95,30) . '<br>';
-$weatherTest->getWeather('test');
-$weatherTest->getWeather();
 	
 ?>
