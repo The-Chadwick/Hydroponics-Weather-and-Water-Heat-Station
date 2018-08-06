@@ -17,12 +17,15 @@ class Weather {
 	
 	public function postWeather($waterTemp, $airTemp, $humidity){
 		// Add Weather data from microcontroller to database
-		$this->waterTemp = $waterTemp; $this->airTemp = $airTemp; $this->humidity = $humidity;
+		$this->waterTemp = $waterTemp;
+		$this->airTemp = $airTemp;
+		$this->humidity = $humidity;
+		
 		$query = 'INSERT INTO `weather` (`id`, `dateTime`, `weaterTemp`, `airTemp`, `humidity`) VALUES (NULL, CURRENT_TIMESTAMP, ' . $this->waterTemp . ', ' . $this->airTemp . ', ' . $this->humidity . ')';
 		$stmt = $this->conn->prepare($query);
 		$stmt->execute();
 		
-		return true;
+		return 'success';
 	}
 	
 	public function getWeather(...$args){
