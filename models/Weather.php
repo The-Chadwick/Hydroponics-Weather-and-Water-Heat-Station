@@ -15,13 +15,14 @@ class Weather {
 		$this->dateTime = date('Y-m-d H:i:s');
 	}
 	
-	public function postWeather($waterTemp, $airTemp, $humidity){
+	public function postWeather($waterTemp, $airTemp, $humidity, $address){
 		// Add Weather data from microcontroller to database
 		$this->waterTemp = $waterTemp;
 		$this->airTemp = $airTemp;
 		$this->humidity = $humidity;
+		$this->address = $address;
 		
-		$query = 'INSERT INTO `weather` (`id`, `dateTime`, `weaterTemp`, `airTemp`, `humidity`) VALUES (NULL, CURRENT_TIMESTAMP, ' . $this->waterTemp . ', ' . $this->airTemp . ', ' . $this->humidity . ')';
+		$query = 'INSERT INTO `weather` (`id`, `dateTime`, `weaterTemp`, `airTemp`, `humidity`, `address`) VALUES (NULL, CURRENT_TIMESTAMP, ' . $this->waterTemp . ', ' . $this->airTemp . ', ' . $this->humidity . ', "' . $this->address . '")';
 		$stmt = $this->conn->prepare($query);
 		$stmt->execute();
 		

@@ -1,1 +1,1 @@
-CREATE TABLE `weatherdata`.`weather` ( `id` INT(10) NOT NULL AUTO_INCREMENT , `dateTime` DATE NOT NULL , `weaterTemp` INT(3) NOT NULL , `airTemp` INT(3) NOT NULL , `humidity` INT(3) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+CREATE TABLE `weatherdata`.`weather` ( `id` INT(10) NOT NULL AUTO_INCREMENT , `dateTime` DATE NOT NULL , `waterTemp` INT(3) NOT NULL , `airTemp` INT(3) NOT NULL , `humidity` INT(3) NOT NULL , `address` VARCHAR(17) NOT NULL, PRIMARY KEY (`id`)) ENGINE = InnoDB;
