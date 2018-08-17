@@ -1,11 +1,5 @@
 <?php
 
-//echo "Data Recieved: \n\t"
-//	. "Water Temperature = " . $_POST['waterTemp'] . "\n\t"
-//	. "Air Temperature = " . $_POST['airTemp'] . "\n\t"
-//	. "Humidity = " . $_POST['humidity'] . "\n\t"
-//	. "Mac Adress = " . $_POST['address'] . "\n\t";
-
 include_once('../config/Database.php');
 include_once('../models/Weather.php');
 
@@ -20,9 +14,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	$address = $waterTemp = $airTemp = $humidity = '';
 	if(!isset($_POST['address']) || !isset($_POST['waterTemp']) || !isset($_POST['airTemp']) ||  !isset($_POST['humidity'])) {
 		echo 'Missing Data';
+		exit();
 	} else{
 		$clean = array();
 		$message = '';
+		
 		foreach($_POST as $key => $value){
 			$value = trim($value);
 			$value = stripslashes($value);
@@ -50,6 +46,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		if($message == ''){
 			$message = $weather->postWeather($waterTemp, $airTemp, $humidity, $address);
 			echo $message;
+			echo "Data Recieved: \n\t"
+				. "Water Temperature = " . $_POST['waterTemp'] . "\n\t"
+				. "Air Temperature = " . $_POST['airTemp'] . "\n\t"
+				. "Humidity = " . $_POST['humidity'] . "\n\t";
 		}
 		else {
 			echo $message;
@@ -65,7 +65,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	}
 } else if($_SERVER['REQUEST_METHOD'] == 'GET'){
 	// If a get request is recieved
-	echo json_encode($weather->getWeather());
+	if(isset($_GET['start']) && isset($_GET['end'])){
+		// returns weather data from date range
+//		$startDate = new DateTime($_GET['start']);
+//		$endDate = new DateTime($_GET['end']);
+//		
+//		echo json_encode($weather->getWeather($startDate, $endDate));
+		
+		$startDate = DateTime::createFormFormat('')
+		
+		echo json_encode($weather->getWeather($_GET['start'], $_GET['end']));
+	} elseif(isset($_GET['startDate']) && !isset($_GET['endDate'])){
+		// returns weather data between start time and now
+		$startDate = new DateTime($_GET['startDate']);
+		
+		
+		echo json_encode($weather->getWeather($startDate));
+	} else echo json_encode($weather->getWeather()); // returns last 30 days of data
 }
 
 ?>

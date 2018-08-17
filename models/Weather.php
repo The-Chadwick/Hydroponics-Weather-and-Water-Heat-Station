@@ -26,15 +26,16 @@ class Weather {
 		$stmt = $this->conn->prepare($query);
 		$stmt->execute();
 		
-		return 'success';
+		return 'Success!<br>';
 	}
 	
 	public function getWeather(...$args){
 		$start; $end;
 		if(isset($args[1]) && isset($args[0])){
 			// getWeather($start, $end);
-			echo 'Fetching data from ' . $args[0] . ' to ' . $args[1] . '.';
-			$query = 'SELECT * FROM `weather` WHERE `dateTime` BETWEEN "2018-07-26 00:00:00.000000" AND "2018-08-1 23:59:59.999999"';
+			$start = '2018-08-06 00:00:00';
+			$end = '2018-08-06 23:59:59';
+			$query = 'SELECT * FROM `weather` WHERE `dateTime` BETWEEN "' . $start . '" AND "' . $end . '"';
 		} else if(isset($args[0]) && !isset($args[1])){
 			// getWeather($start);
 			echo 'Fetching data from ' . $args[0] . ' onwards.';
